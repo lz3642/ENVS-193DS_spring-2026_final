@@ -1,25 +1,37 @@
 ---
 title: "final"
-format: html
+format: pdf
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+Setup chunk:
 
 ```{r}
-1 + 1
+library(tidyverse)
+library(dplyr)
+library(janitor)
 ```
 
-You can add options to executable code like this 
+# Problem 1 
 
-```{r}
-#| echo: false
-2 * 2
-```
+1a. 
 
-The `echo: false` option disables the printing of code (only output is displayed).
+He most likely used a logistic regression because they were testing whether the distant to water edge predicted for the probability of microhabitat use. In the second part, he most likely perform a chi square test of independence because they were testing whether bird species and habitat (which are categorical variables) were related. 
+
+1b. 
+
+Part A: 
+
+The American Avocets were more or less likely to use a microhabitat depending on their distance from the water. Distance to water's edge is a significant factor that influences microhabitat use. 
+
+Part B: 
+
+Use of habitat showed to be different across Avocets, Forster's Terns, and Black-necked Stilts. The three species showed unique patterns in the use of managed ponds, marshes, salt ponds, and mudflats. 
+
+1c. 
+
+An additional variable that could contribute to the probability of Avocet microhabitat use is human activity. Maybe it could be measured as a categorical variable organized in low, medium, and high levels, assessed by how many people are present in the habitat hourly. The birds may avoid those areas with more human activity because it might affect how much the birds go out of their shelters/nests to go eat, or may trigger them to fly out of their habitat when people are really close to them. 
+
+# Problem 2
+
+
+
