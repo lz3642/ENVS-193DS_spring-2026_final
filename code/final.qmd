@@ -1,14 +1,20 @@
 ---
-title: "final"
+title: "ENV S 193DS"
+subtitle: "Final"
 format: pdf
+author: Liv Zou
+date: "2026-06-08"
 ---
 
 Setup chunk:
 
 ```{r}
+#| label: pkg
+#| message: false
 library(tidyverse)
 library(dplyr)
 library(janitor)
+library(here)
 ```
 
 # Problem 1 
@@ -33,5 +39,66 @@ An additional variable that could contribute to the probability of Avocet microh
 
 # Problem 2
 
+2a.
 
+```{r}
+#| message: false
+nests <- read_csv(here("data", "nest_data_final.csv"))
+```
+
+```{r}
+# Clean dataset
+nests_clean <- nests |> 
+  # Select relevant columns according to metadata 
+     select(ant_species, height_cm, bird_species) |> 
+  # Select the relevant ant species 
+filter(ant_species %in% c("AB", "RRB", "BBR")) |> 
+mutate(
+  # Reorder ant species 
+  # Set desired order
+    ant_species = factor(ant_species,
+                         levels = c("AB", "RRB", "BBR")),
+    # Creating new columns displaying ant names 
+    scientific_name = case_when(
+      ant_species == "AB"  ~ "C. sjostedti",
+      ant_species == "RRB" ~ "C. mimosae",
+      ant_species == "BBR" ~ "C.nigriceps"))
+  
+```
+
+```{r}
+# Convert data into string and display structure
+str(nests_clean)
+# Take 10 random samples
+slice_sample(nests_clean, n = 10)
+```
+
+2b.
+
+In the case column a value of 1 means that a bird nest was present in the tree habitat while 0 indicates the absence of a bird nest. The values 1 and 0 represent if a tree was used as a nesting site or not. 
+
+2c. 
+
+The predictor variables are tree height and acacia ant species.
+
+Tree height is a continuous quantitative variable, because it can be measured. As the height increases the probability of more nests appearing is expected to increase because the trees get bigger and taller, providing more spaces for birds to form shelteres that are not in the proximity of any predators that could probably harm them. This information is supported in the paper's results section where the probability of a bird deciding to nest increased when the trees increased by a 1 meter interval.  
+
+Ant species is a categorical variable, because it has unique categories of something, in this case, there are distinctive, unique species of ants. Ant species may also influence the probability of nest appearance, and the abstract and introduction of Lujan's paper describes the relationship of ants and birds to be mutualistic. 
+
+2d. 
+
+```{r}
+model_table <- tibble(
+  model_number = c(1, 2),
+  model_description = c(
+    "Nest occurrence predicted by height and species without interactions",
+    "Nest occurrence predicted by height species with interaction btwn variables."
+  ),
+  predictors = c(
+    "height_cm + ant_species",
+    "height_cm * ant_species"
+  ),
+  interaction_term = c("Yes", "No")
+)
+```
 
