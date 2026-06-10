@@ -67,15 +67,19 @@ mutate(
 ```
 
 ```{r}
+#| message: false
 # Convert data into string and display structure
 str(nests_clean)
+```
+
+```{r}
 # Take 10 random samples
 slice_sample(nests_clean, n = 10)
 ```
 
 2b.
 
-In the case column a value of 1 means that a bird nest was present in the tree habitat while 0 indicates the absence of a bird nest. The values 1 and 0 represent if a tree was used as a nesting site or not. 
+In the case column, a value of 1 means that a bird nest was present in the tree habitat while 0 indicates the absence of a bird nest. The values 1 and 0 represent if a tree was used as a nesting site or not. 
 
 2c. 
 
@@ -88,7 +92,9 @@ Ant species is a categorical variable, because it has unique categories of somet
 2d. 
 
 ```{r}
-model_table <- tibble(
+#| label: table showing only
+#| echo: false
+table <- tibble(
   model_number = c(1, 2),
   model_description = c(
     "Nest occurrence predicted by height and species without interactions",
@@ -100,5 +106,27 @@ model_table <- tibble(
   ),
   interaction_term = c("Yes", "No")
 )
+
+knitr::kable(table)
 ```
+
+2e. 
+
+```{r}
+#| message: false
+table <- tibble(
+  model_number = c(1, 2),
+  model_description = c(
+    "Nest occurrence predicted by height and species without interactions",
+"Nest occurrence predicted by height and species w/ interaction btwn variables."
+  ),
+  predictors = c(
+    "height_cm + ant_species",
+    "height_cm * ant_species"
+  ),
+  interaction_term = c("Yes", "No")
+)
+```
+
+
 
