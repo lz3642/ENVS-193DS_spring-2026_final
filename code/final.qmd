@@ -15,6 +15,10 @@ library(tidyverse)
 library(dplyr)
 library(janitor)
 library(here)
+install.packages("DHARMa")
+library("DHARMa")
+install.packages("ggeffects")
+library(ggeffects)
 ```
 
 # Problem 1 
@@ -50,10 +54,14 @@ nests <- read_csv(here("data", "nest_data_final.csv"))
 # Clean dataset
 nests_clean <- nests |> 
   # Select relevant columns according to metadata 
-     select(ant_species, height_cm, bird_species) |> 
+     select(ant_species, height_cm, alive) |> 
   # Select the relevant ant species 
 filter(ant_species %in% c("AB", "RRB", "BBR")) |> 
 mutate(
+    alive = case_when(
+      alive == "A" ~ 1,
+      alive == "D" ~ 0
+    ),
   # Reorder ant species 
   # Set desired order
     ant_species = factor(ant_species,
@@ -63,7 +71,6 @@ mutate(
       ant_species == "AB"  ~ "C. sjostedti",
       ant_species == "RRB" ~ "C. mimosae",
       ant_species == "BBR" ~ "C.nigriceps"))
-  
 ```
 
 ```{r}
@@ -104,7 +111,7 @@ table <- tibble(
     "height_cm + ant_species",
     "height_cm * ant_species"
   ),
-  interaction_term = c("Yes", "No")
+  interaction_term = c("No", "Yes")
 )
 
 knitr::kable(table)
@@ -124,9 +131,87 @@ table <- tibble(
     "height_cm + ant_species",
     "height_cm * ant_species"
   ),
-  interaction_term = c("Yes", "No")
+  interaction_term = c("No", "Yes")
 )
 ```
 
+```{r}
+model1 <- glm(
+ alive ~ height_cm + ant_species,
+  data = nests_clean,
+  family = binomial
+)
+```
+
+```{r}
+model2 <- glm(
+alive ~ height_cm * ant_species,
+  data = nests_clean,
+  family = binomial
+)
+```
+
+2f.
+
+```{r}
+AIC(model1, model2)
+```
+
+The best model as determined by Akaike's Information Criterion (AIC) is one that includes tree height and ant species as predictor variables. The model has a lower AIC (20.52) compared to the model that included the interaction between height and ant species (24.52) which had the interaction between tree height and ant species. This implies that the model selected is better in explaining and predicting the data as well without including unnecessary complexity in the visualization.
+
+2g. 
+
+```{r}
+model1_residual <- simulateResiduals(fittedModel = model1)
+plot(model1_residual)
+```
+
+2h. 
+
+
+```{r}
+predictions1 <- ggpredict(model1, terms = c("height_cm [all]", "ant_species"))
+predictions1 <- as.data.frame(predictions1)
+
+ggplot() + 
+  geom_point(data = nests_clean, aes(x = height_cm, y = alive), 
+             color = "darkblue", alpha = 0.5, size = 2) + 
+  geom_ribbon(data = predictions1, aes(x = x, ymin = conf.low, ymax = conf.high), fill = "lightgreen", 
+              alpha = 0.2) + 
+  geom_line(data = predictions1, aes(x = x, y = predicted), color = "red", linewidth = 1) +
+  facet_wrap(~ group) + labs(x = "Nest height above ground (cm)", y = "Probability of survival", title = "Model predictions of ant survival determined by nest distance and ant species")
+```
+
+2i.
+
+Figure 1. Model predictions of ant survival across species and nest height. Probabilities of survival were estimated using AIC and linear regression that included nest height above the ground, and various species of ants. The dark blue points represent the amount of ant that survived per species while the ones on the bottom are representing the ones that did not survive. The line represents the model predictions of ant survival. The green shaded regions represent the 95% confidence interval. The results are distributed across each ant species. This information was extracted from the nests_clean dataset. 
+
+2j. 
+
+```{r}
+predict2j <- predict(
+  model1,
+  newdata = data.frame(
+    height_cm = c(600, 600, 600),
+    ant_species = factor(
+      c("RRB", "AB", "BBR"),
+      levels = levels(nests_clean$ant_species)
+    )
+  ),
+  type = "response"
+)
+predict2j
+```
+
+
+2k. 
+
+I noticed that nest occupancy was higher in taller trees. At 600 cm, the model predicted high likelihood of nest occurrences across the three species of ants, the probability ranging from 0.984 for Mimosae ants to 1 for both Sjostedti and Nigriceps ants. These predictions suggest that height and types of ants are influential variables in nest appearance, and that taller trees have more nest occupancy. This makes sense because taller trees are higher off the ground, away from many predators, and provide more shade as there are more leaves as the nest is higher, providing safety, shelter and shade for the birds that create their nests. Additionally, higher trees are also farther away from any human disturbances. Ant species being an influential factor for nest occupancy likelihood is also relevant. Though the relationship between ants and nesting may be mutualistic, each ant may have different ways of defending nests when they are on the trees, making some habitats more favorable to birds than others. 
+
+# Problem 3
+
+3a. 
+
+My visualizations in Homework 2 were very different because they 
 
 
