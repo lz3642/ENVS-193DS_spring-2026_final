@@ -109,48 +109,9 @@ Ant species is a categorical variable, because it has unique categories of somet
 
 Table Only:
 ```{r}
-#| label: table showing only
+#| label: table only
 #| echo: false
-
-table <- tibble(
-  model_number = c(1, 2),
-  model_description = c(
-    "Nest occurrence predicted by height and species without interactions",
-"Nest occurrence predicted by height and species w/ interaction btwn variables."
-  ),
-  predictors = c(
-    "height_cm + ant_species",
-    "height_cm * ant_species"
-  ),
-  interaction_term = c("No", "Yes")
-)
-```
-
-```{r}
-
-# Make models fit logistic regression model with response and predictor variables
-model1 <- glm(
- alive ~ height_cm + ant_species,
-  data = nests_clean,
-  family = binomial
-)
-```
-
-```{r}
-
-# Make models fit log. regression model w/ response + predicting variables
-model2 <- glm(
-alive ~ height_cm * ant_species,
-  data = nests_clean,
-  family = binomial)
-```
-
-2e. 
-
-Code only: 
-```{r}
 #| message: false
-
 # Create table
 table <- tibble(
   # Create models 
@@ -171,6 +132,53 @@ table <- tibble(
 
 # Use knitr function to embed table into quarto
 knitr::kable(table)
+```
+
+```{r}
+#| include: false
+
+# Make models fit logistic regression model with response and predictor variables
+model1 <- glm(
+ alive ~ height_cm + ant_species,
+  data = nests_clean,
+  family = binomial
+)
+```
+
+```{r}
+#| include: false
+
+# Make models fit log. regression model w/ response + predicting variables
+model2 <- glm(
+alive ~ height_cm * ant_species,
+  data = nests_clean,
+  family = binomial)
+```
+
+2e.
+
+Code only: 
+```{r}
+#| label: code only
+#| message: false
+
+# Create table
+table <- tibble(
+  # Create models 
+  model_number = c(1, 2),
+  # Differentiate them by interaction terms 
+  model_description = c(
+    "Nest occurrence predicted by height and species without interactions",
+    "Nest occurrence predicted by height species with interaction btwn variables."
+  ),
+  # Include predictor variables 
+  predictors = c(
+    "height_cm + ant_species",
+    "height_cm * ant_species"
+  ),
+  # Indicate presence of interactive term
+  interaction_term = c("No", "Yes")
+)
 ```
 
 2f.
