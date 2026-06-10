@@ -4,5 +4,5 @@ code/ contains quarto documents, figures, analyses
 
 data/ datasets 
 ## Rendered output
-Here is the link for the output.
+
 [View Final PDF](final.pdf)
