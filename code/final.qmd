@@ -1,7 +1,15 @@
 ---
-title: "ENV S 193DS"
-subtitle: "Final"
-format: pdf
+title: "Final"
+
+subtitle: "ENV S 193 DS"
+format:
+  pdf:
+    toc: true # use this to display a table of contents
+    toc-depth: 2
+execute:
+  message: false # use this to make sure messages don't show up
+  warning: false # use this to make sure warnings don't show upl
+  number-sections: true
 author: Liv Zou
 date: "2026-06-08"
 ---
@@ -11,13 +19,14 @@ Setup chunk:
 ```{r}
 #| label: pkg
 #| message: false
+
+# installing all packages
 library(tidyverse)
 library(dplyr)
 library(janitor)
 library(here)
-install.packages("DHARMa")
+library(ggeffects)
 library("DHARMa")
-install.packages("ggeffects")
 library(ggeffects)
 ```
 
@@ -98,29 +107,11 @@ Ant species is a categorical variable, because it has unique categories of somet
 
 2d. 
 
+Table Only:
 ```{r}
 #| label: table showing only
 #| echo: false
-table <- tibble(
-  model_number = c(1, 2),
-  model_description = c(
-    "Nest occurrence predicted by height and species without interactions",
-    "Nest occurrence predicted by height species with interaction btwn variables."
-  ),
-  predictors = c(
-    "height_cm + ant_species",
-    "height_cm * ant_species"
-  ),
-  interaction_term = c("No", "Yes")
-)
 
-knitr::kable(table)
-```
-
-2e. 
-
-```{r}
-#| message: false
 table <- tibble(
   model_number = c(1, 2),
   model_description = c(
@@ -136,6 +127,8 @@ table <- tibble(
 ```
 
 ```{r}
+
+# Make models fit logistic regression model with response and predictor variables
 model1 <- glm(
  alive ~ height_cm + ant_species,
   data = nests_clean,
@@ -144,16 +137,46 @@ model1 <- glm(
 ```
 
 ```{r}
+
+# Make models fit log. regression model w/ response + predicting variables
 model2 <- glm(
 alive ~ height_cm * ant_species,
   data = nests_clean,
-  family = binomial
+  family = binomial)
+```
+
+2e. 
+
+Code only: 
+```{r}
+#| message: false
+
+# Create table
+table <- tibble(
+  # Create models 
+  model_number = c(1, 2),
+  # Differentiate them by interaction terms 
+  model_description = c(
+    "Nest occurrence predicted by height and species without interactions",
+    "Nest occurrence predicted by height species with interaction btwn variables."
+  ),
+  # Include predictor variables 
+  predictors = c(
+    "height_cm + ant_species",
+    "height_cm * ant_species"
+  ),
+  # Indicate presence of interactive term
+  interaction_term = c("No", "Yes")
 )
+
+# Use knitr function to embed table into quarto
+knitr::kable(table)
 ```
 
 2f.
 
 ```{r}
+# Put models into AIC to see which is the better model to use for the data 
 AIC(model1, model2)
 ```
 
@@ -162,24 +185,38 @@ The best model as determined by Akaike's Information Criterion (AIC) is one that
 2g. 
 
 ```{r}
+# Simulate residuals using Dharma package
 model1_residual <- simulateResiduals(fittedModel = model1)
 plot(model1_residual)
 ```
 
 2h. 
 
-
 ```{r}
+# Generate probabilities / CI 
 predictions1 <- ggpredict(model1, terms = c("height_cm [all]", "ant_species"))
+# Converting data so that it can be plotted on a graph
 predictions1 <- as.data.frame(predictions1)
 
 ggplot() + 
+  # Plot underlying data, input x y axes 
   geom_point(data = nests_clean, aes(x = height_cm, y = alive), 
              color = "darkblue", alpha = 0.5, size = 2) + 
-  geom_ribbon(data = predictions1, aes(x = x, ymin = conf.low, ymax = conf.high), fill = "lightgreen", 
+  # Confidence interval, set up in addition to the data visualization w/ ggplot
+  geom_ribbon(data = predictions1, 
+              aes(x = x, ymin = conf.low, ymax = conf.high), 
+              fill = "lightgreen", 
               alpha = 0.2) + 
-  geom_line(data = predictions1, aes(x = x, y = predicted), color = "red", linewidth = 1) +
-  facet_wrap(~ group) + labs(x = "Nest height above ground (cm)", y = "Probability of survival", title = "Model predictions of ant survival determined by nest distance and ant species")
+  # Set up probability line across ant species 
+  geom_line(data = predictions1, 
+            aes(x = x, y = predicted), 
+            color = "red", linewidth = 1) +
+  # Separate the data plots by ant species 
+  facet_wrap(~ group) + 
+  # Set up x y title labels for graph
+  labs(x = "Nest height above ground (cm)", 
+       y = "Probability of survival", title = "Model predictions of ant survival 
+       determined by nest distance & ant species")
 ```
 
 2i.
@@ -189,15 +226,19 @@ Figure 1. Model predictions of ant survival across species and nest height. Prob
 2j. 
 
 ```{r}
+# Calculate predicted probability at 600 cm
 predict2j <- predict(
   model1,
   newdata = data.frame(
+    # Split calculated pred. probability across ant species
     height_cm = c(600, 600, 600),
     ant_species = factor(
       c("RRB", "AB", "BBR"),
+      # Generate predictions + distribute them 
       levels = levels(nests_clean$ant_species)
     )
   ),
+  # Give a probability rather than ratio
   type = "response"
 )
 predict2j
@@ -212,6 +253,85 @@ I noticed that nest occupancy was higher in taller trees. At 600 cm, the model p
 
 3a. 
 
-My visualizations in Homework 2 were very different because they 
+My visualizations in Homework 2 were very different because a lot of them were just focused on getting the data on the document, and explaining it conceptually and statistically. Homework 3 however was really different because the data visualizations now had a new goal of engaging the viewers of my visualization. While preserving the data, I had to now find ways on how to creatively display it in ways that are meaningful yet statistically insightful. Across both homework sets they are similar because they both had the same goal of displaying and representing my data informatively and concisely, and used visual patterns and methods to do so. For me specifically, my visualizations across my homework remain consistent because they both make efforts to convey the data in a concise manner. But I think in homework 2, the visualization was more focused on just simply getting the data across through statistical relationships and trends while in homework 3 I got to apply the statistical relationships and trend in a more creative way, that would engage my audience. One set of  feedback I received was to include more data about my statistical relationship/trend that I was analyzing. I think this is important and I will definitely implement it because it would make my data more reliable, informative, and accurate. 
 
+3b. 
 
+Based on my response variable, I think logistical regression is the appropriate test to use to see if height affects nest occurence. It works because the probability of nest occurence is split into two responses, either Yes or No, making it a binary dataset. LR works because it models the possibility of a binary event happening or not in response to a continuous predictor variable, such as tree height. Therefore, it is an appropriate test to see whether tree height really does affect the likelihood of nests appearing.
+
+3c. 
+```{r}
+# Define object and simulate residuals using Dharma package 
+assumptionchecking <- simulateResiduals(model1)
+assumptionchecking
+```
+
+```{r}
+# Binary checking
+table(nests_clean$alive)
+```
+
+```{r}
+# Diagnostics
+plot(assumptionchecking)
+```
+
+```{r}
+# Testing for overdispersion
+testDispersion(assumptionchecking)
+```
+
+```{r}
+# Testing for residuals to be uniformly distributed
+testUniformity(assumptionchecking)
+```
+
+Effect size calculation: 
+
+```{r}
+# Define object with relevant variables using logistic regression values 
+effectsize <- glm(alive ~ height_cm, data = nests_clean, family = binomial)
+```
+
+```{r}
+# Calculate effect size 
+exp(coef(effectsize))
+```
+
+Nest occurence shows to be binary (nest = 1, no nest = 0), satisfying logistic regression use. Simulated residuals from Dharma and assumption checking of logistic regression was used. The tests shown were to check for assumptions and if the data was uniformly distributed and dispersed evenly. An effect size test was ran through defining variables through logistic regression model and then calculating odds ratio, resulting in tree height with a ratio of 0.996, suggesting that for every one cm increase in tree height the probability of nests occurring was multiplied by 0.996. However, because the ratio is very close to 1, that means the ratio is equally distributed, and that tree height actually doesn't have the most significant impact on nest appearances.  
+
+3d. 
+
+```{r}
+# Define object from logistic regression analysis for model representation
+height_3d <- ggpredict(
+  effectsize,
+  terms = "height_cm"
+)
+```
+
+Plotting: 
+```{r}
+#| warning: false
+ggplot() + 
+  # Form data plot and model predictions
+  geom_jitter(
+    data = nests_clean, aes(x = height_cm, y = alive), width = 0.5, 
+    height = 0.05, alpha = 0.5, color = "orange") + 
+  # Confidence interval 
+  geom_ribbon(data = height_3d, aes(x = x, ymin = conf.low, ymax = conf.high), 
+              fill = "lavender", alpha = 0.4) + 
+  # Set up x y axes 
+  labs(x = "Tree height (cm)", y = "Probability of nest occurence", 
+       title = "Effect of tree height on nest occurence") +
+  # Set range for y axis in terms of probability 
+  scale_y_continuous(limits = c(0, 1)) + theme_minimal()
+```
+
+3e. 
+
+Figure 1. Tree height's effect on the probability of nest occurrence. The purple shaded part of the graph represents the 95% confidence interval surrounding the logistic regression data, and the area under the curve where the chance of nests appearing is most likely to occur, under trees at 600 cm. The orange points represent individual observations of nests across different trees and different heights where values closer or at 1 represent a nest being present, and values close to or at 0 represent a nest not being there. In summary, nest occurrence remains prominent across most tree heights, but the data seems to be less clustered as the tree height increases as fewer observations are seen. 
+
+3f. 
+
+Tree height came to have very small influence on the probability of nest occurence, with the odds ratio being close to 1(0.996). A logistic regression test was used to observe the relationship between tree height and probability of nest occurrence. Nests were frequent in the data set (n = 270, n = No. of trees), where nests appeared in 269 trees and were absent in one tree (Figure 1). Based on these results it can be suggested that tree height is not a strong predictor to determine probability of nest occurrence.
